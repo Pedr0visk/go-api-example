@@ -2,7 +2,7 @@ package db
 
 import "time"
 
-type Track struct {
+type Trace struct {
 	ID                string    `gorm:"column:id"`
 	UserWalletAddress string    `gorm:"column:user_wallet_address"`
 	Payload           string    `gorm:"column:payload"`

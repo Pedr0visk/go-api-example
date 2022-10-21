@@ -6,6 +6,6 @@ import (
 	"hive-data-collector/internal/domain"
 )
 
-type TrackRepository interface {
-	Create(ctx context.Context, track dto.Track) (domain.Track, error)
+type TraceRepository interface {
+	Create(ctx context.Context, trace dto.Trace) (domain.Trace, error)
 }

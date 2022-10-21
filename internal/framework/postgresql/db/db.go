@@ -62,7 +62,7 @@ func SetupDB() {
 
 // Auto migrate project models
 func migration() {
-	DB.AutoMigrate(&Track{})
+	DB.AutoMigrate(&Trace{})
 }
 
 func GetDB() *gorm.DB {
