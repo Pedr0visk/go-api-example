@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"hive-data-collector/internal/framework/postgresql/config"
+	"hive-data-collector/internal"
 	"log"
 	"time"
 
@@ -24,7 +24,7 @@ type Database struct {
 func SetupDB() {
 	var db = DB
 
-	configuration := config.GetConfig()
+	configuration := internal.GetConfig()
 
 	driver := configuration.Database.Driver
 	database := configuration.Database.Dbname
@@ -34,7 +34,7 @@ func SetupDB() {
 	port := configuration.Database.Port
 
 	if driver == "sqlite" { // SQLITE
-		db, err = gorm.Open(sqlite.Open("modules/advertisements/"+database+".db"), &gorm.Config{})
+		db, err = gorm.Open(sqlite.Open(""+database+".db"), &gorm.Config{})
 		if err != nil {
 			fmt.Println("db err: ", err)
 		}

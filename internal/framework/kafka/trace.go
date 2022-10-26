@@ -62,7 +62,7 @@ func (t *TraceMessageBroker) publish(ctx context.Context, spanName, msgType stri
 		},
 		Value: b.Bytes(),
 	}, nil); err != nil {
-		return domain.WrapErrorf(err, domain.ErrorCodeUnknown, "product.Producer")
+		return domain.WrapErrorf(err, domain.ErrorCodeUnknown, "trace.Producer")
 	}
 
 	return nil

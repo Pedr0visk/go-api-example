@@ -13,10 +13,10 @@ type TraceService struct {
 	msgBroker repository.TraceMessageBrokerRepository
 }
 
-func (s *TraceService) Create(ctx context.Context, params dto.TraceCreateParams) (domain.Trace, error) {
+func (s *TraceService) CreateNewTrace(ctx context.Context, params dto.TraceCreateRequestBody) (domain.Trace, error) {
 	// defer
 
-	trace, err := s.repo.Create(ctx, dto.Trace{
+	trace, err := s.repo.Create(ctx, domain.Trace{
 		UserWalletAddress: params.UserWalletAddress,
 		Payload:           params.Payload,
 		PublisherUrl:      params.PublisherUrl,
@@ -24,14 +24,15 @@ func (s *TraceService) Create(ctx context.Context, params dto.TraceCreateParams)
 	})
 
 	if err != nil {
-		log.Fatalf("could not create trace %v", err)
+		log.Printf("could not create trace %v", err)
+		return domain.Trace{}, err
 	}
 
-	err = s.msgBroker.Created(ctx, trace)
-	if err != nil {
-		// log error could not send kafka
-		return domain.Trace{}, nil
-	}
+	//err = s.msgBroker.Created(ctx, trace)
+	//if err != nil {
+	//	// log error could not send kafka
+	//	return domain.Trace{}, nil
+	//}
 
 	return trace, nil
 }

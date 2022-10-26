@@ -2,20 +2,30 @@ package db
 
 import (
 	"context"
-	"hive-data-collector/internal/application/dto"
+	uuid "github.com/satori/go.uuid"
 	"hive-data-collector/internal/domain"
 )
 
 type TraceRepository struct{}
 
-func (r *TraceRepository) Create(ctx context.Context, trace dto.Trace) (domain.Trace, error) {
-	// db := GetDB()
-	return domain.Trace{
-		UserWalletAddress: "0xABC123",
-		Payload:           "payload",
-		Date:              123712631283,
-		Source:            "test-url",
-	}, nil
+func (r *TraceRepository) Create(ctx context.Context, trace domain.Trace) (domain.Trace, error) {
+	db := GetDB()
+
+	obj := Trace{
+		ID:                uuid.NewV4(),
+		PublisherUrl:      trace.PublisherUrl,
+		Date:              trace.Date,
+		UserWalletAddress: trace.UserWalletAddress,
+		Payload:           trace.Payload,
+	}
+
+	if err := db.Create(&obj).Error; err != nil {
+		return domain.Trace{}, domain.WrapErrorf(err, domain.ErrorCodeUnknown, "insert trace")
+	}
+
+	trace.ID = obj.ID.String()
+
+	return trace, nil
 }
 
 func NewTraceRepository() *TraceRepository {
