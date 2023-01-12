@@ -1,11 +1,12 @@
 package kafka
 
 import (
+	"analytics/internal"
+	"analytics/internal/domain"
 	"bytes"
 	"context"
 	"encoding/json"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"hive-data-collector/internal/domain"
 )
 
 type TraceMessageBroker struct {
@@ -15,10 +16,10 @@ type TraceMessageBroker struct {
 
 type event struct {
 	Type  string
-	Value domain.Trace
+	Value domain.Span
 }
 
-func (r *TraceMessageBroker) Created(ctx context.Context, trace domain.Trace) error {
+func (r *TraceMessageBroker) Created(ctx context.Context, trace domain.Span) error {
 	return nil
 }
 
@@ -26,7 +27,7 @@ func NewTraceMessageBroker() *TraceMessageBroker {
 	return &TraceMessageBroker{}
 }
 
-func (t *TraceMessageBroker) publish(ctx context.Context, spanName, msgType string, trace domain.Trace) error {
+func (t *TraceMessageBroker) publish(ctx context.Context, spanName, msgType string, trace domain.Span) error {
 	// monitoring
 	//_, span := otel.Tracer(otelName).Start(ctx, spanName)
 	//defer span.End()
@@ -52,7 +53,7 @@ func (t *TraceMessageBroker) publish(ctx context.Context, spanName, msgType stri
 	}
 
 	if err := json.NewEncoder(&b).Encode(evt); err != nil {
-		return domain.WrapErrorf(err, domain.ErrorCodeUnknown, "json.Encode")
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.Encode")
 	}
 
 	if err := t.producer.Produce(&kafka.Message{
@@ -62,7 +63,7 @@ func (t *TraceMessageBroker) publish(ctx context.Context, spanName, msgType stri
 		},
 		Value: b.Bytes(),
 	}, nil); err != nil {
-		return domain.WrapErrorf(err, domain.ErrorCodeUnknown, "trace.Producer")
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "trace.Producer")
 	}
 
 	return nil

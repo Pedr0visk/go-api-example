@@ -1,10 +1,10 @@
 package repository
 
 import (
+	"analytics/internal/domain"
 	"context"
-	"hive-data-collector/internal/domain"
 )
 
 type TraceMessageBrokerRepository interface {
-	Created(ctx context.Context, trace domain.Trace) error
+	Created(ctx context.Context, trace domain.Span) error
 }

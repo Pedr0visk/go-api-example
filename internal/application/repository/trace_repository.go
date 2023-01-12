@@ -1,10 +1,10 @@
 package repository
 
 import (
+	"analytics/internal/domain"
 	"context"
-	"hive-data-collector/internal/domain"
 )
 
-type TraceRepository interface {
-	Create(ctx context.Context, trace domain.Trace) (domain.Trace, error)
+type SpanRepository interface {
+	Create(ctx context.Context, span domain.Span) (domain.Span, error)
 }
