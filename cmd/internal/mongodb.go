@@ -1,18 +1,18 @@
 package internal
 
 import (
+	"analytics/internal"
 	"analytics/internal/framework/envvar"
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"net/url"
 	"time"
 )
 
 func NewMongoDB(conf *envvar.Configuration) (*mongo.Client, error) {
-	var database *mongo.Database
-
 	get := func(v string) string {
 		res, err := conf.Get(v)
 		if err != nil {
@@ -28,22 +28,31 @@ func NewMongoDB(conf *envvar.Configuration) (*mongo.Client, error) {
 	//databaseUsername := get("DATABASE_USERNAME")
 	//databasePassword := get("DATABASE_PASSWORD")
 	databaseName := get("DATABASE_NAME")
-	//databaseSSLMode := get("DATABASE_SSLMODE")
+	databaseSSLMode := get("DATABASE_SSLMODE")
 	// XXX: -
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s", databaseHost, databasePort)))
+	dsn := url.URL{
+		Scheme: "mongodb",
+		Host:   fmt.Sprintf("%s:%s", databaseHost, databasePort),
+		Path:   databaseName,
+	}
+
+	q := dsn.Query()
+	q.Add("ssl", databaseSSLMode)
+
+	dsn.RawQuery = q.Encode()
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn.String()))
 	if err != nil {
 		return nil, err
 	}
 
+	if err := client.Ping(ctx, nil); err != nil {
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "db.Ping")
+	}
+
 	return client, err
-	// Disconnect Mongo gracefully
-	//defer func() {
-	//	if err = client.Disconnect(ctx); err != nil {
-	//		panic(err)
-	//	}
-	//}()
 }
