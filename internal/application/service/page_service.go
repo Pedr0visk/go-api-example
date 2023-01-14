@@ -16,14 +16,18 @@ type RetrievePageMetadataOutput struct {
 	Metadata domain.Metadata `json:"metadata"`
 }
 
-func (svc *PageService) RetrievePageMetadata(ctx context.Context, url string) (domain.Page, error) {
+func (svc *PageService) RetrievePageMetadata(ctx context.Context, publisherID, url string) (domain.Page, error) {
 	// defer
 	var err error
 	var page domain.Page
 
-	page = svc.repo.GetByUrl(ctx, url)
+	page, err = svc.repo.FindByUrl(ctx, url)
+	if err != nil {
+		return page, err
+	}
+
 	if page.ID == "" {
-		err = svc.repo.Create(ctx, &domain.Page{Url: page.Url})
+		page, err = svc.repo.Create(ctx, publisherID, url)
 		if err != nil {
 			return page, err
 		}
@@ -32,7 +36,7 @@ func (svc *PageService) RetrievePageMetadata(ctx context.Context, url string) (d
 	return page, nil
 }
 
-func NewPageService(repo repository.PageRepository, msgBroker repository.TraceMessageBrokerRepository) *PageService {
+func NewPageService(repo repository.PageRepository, msgBroker repository.PageMessageBrokerRepository) *PageService {
 	return &PageService{
 		repo:      repo,
 		msgBroker: msgBroker,

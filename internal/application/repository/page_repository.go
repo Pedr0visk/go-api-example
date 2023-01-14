@@ -6,6 +6,8 @@ import (
 )
 
 type PageRepository interface {
-	GetByUrl(ctx context.Context, url string) domain.Page
-	Create(ctx context.Context, page *domain.Page) error
+	FindByUrl(ctx context.Context, url string) (domain.Page, error)
+	Find(ctx context.Context, id string) (domain.Page, error)
+	Create(ctx context.Context, url, publisherID string) (domain.Page, error)
+	Update(ctx context.Context, id, url string) error
 }

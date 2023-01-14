@@ -6,5 +6,5 @@ import (
 )
 
 type PageMessageBrokerRepository interface {
-	Created(ctx context.Context, trace domain.Span) error
+	Created(ctx context.Context, page domain.Page) error
 }
