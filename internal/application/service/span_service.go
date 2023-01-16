@@ -3,6 +3,8 @@ package service
 import (
 	"analytics/internal/domain"
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type SpanMessageBrokerRepository interface {
@@ -20,12 +22,14 @@ func NewSpanService(msgBroker SpanMessageBrokerRepository) *SpanService {
 }
 
 func (s *SpanService) Create(ctx context.Context, params SpanCreateParams) error {
+	ID, _ := uuid.NewUUID()
 
 	if err := s.msgBroker.Created(ctx, domain.Span{
-		ID:        "1",
+		ID:        ID.String(),
 		SessionID: params.SessionID,
 		PageID:    params.PageID,
 		Date:      int(params.Date),
+		UserAgent: params.UserAgent,
 		Url: domain.Url{
 			Hostname: params.Hostname,
 			Pathname: params.Pathname,

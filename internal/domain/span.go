@@ -1,18 +1,18 @@
 package domain
 
 type Url struct {
-	Hostname string
-	Pathname string
-	Search   string
+	Hostname string `json:"hostname"`
+	Pathname string `json:"pathname"`
+	Search   string `json:"search"`
 }
 
 type Span struct {
-	ID        string
-	SessionID string
-	PageID    string
-	Date      int
-	Url       Url
-	UserAgent string
+	ID        string `json:"id"`
+	SessionID string `json:"session_id"`
+	PageID    string `json:"page_id"`
+	Date      int    `json:"date"`
+	Url       Url    `json:"url"`
+	UserAgent string `json:"user_agent"`
 }
 
 // /^0x[a-fA-F0-9]{40}$/g wallet address regex

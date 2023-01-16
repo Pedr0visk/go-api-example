@@ -48,7 +48,9 @@ type CreateSpanRequest struct {
 
 func (c CreateSpanRequest) Validate() error {
 	if err := validation.ValidateStruct(&c,
-		validation.Field(&c.SessionID, validation.Required, validation.Match(regexp.MustCompile(uuidRegEx))), validation.Field(&c.PageID, validation.Required, validation.Match(regexp.MustCompile(uuidRegEx)))); err != nil {
+		validation.Field(&c.SessionID, validation.Required, validation.Match(regexp.MustCompile(uuidRegEx))),
+		validation.Field(&c.PageID, validation.Required, validation.Match(regexp.MustCompile(uuidRegEx))),
+		validation.Field(&c.UserAgent, validation.Required)); err != nil {
 		return err
 	}
 
