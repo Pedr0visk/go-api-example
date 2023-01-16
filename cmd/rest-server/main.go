@@ -3,16 +3,20 @@ package main
 import (
 	"analytics/cmd/internal"
 	internaldomain "analytics/internal"
+	"analytics/internal/application/service"
 	"analytics/internal/framework/envvar"
+	"analytics/internal/framework/kafka"
+	"analytics/internal/framework/rest"
 	"context"
 	"flag"
 	"fmt"
-	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -154,11 +158,20 @@ func newServer(conf serverConfig) (*http.Server, error) {
 		router.Use(mw())
 	}
 
-	//-
+	// -
 
 	router.GET("/healthcheck", func(context *gin.Context) {
 		context.JSON(http.StatusOK, "healthcheck")
 	})
+
+	// -
+
+	msgBroker := kafka.NewSpanMessageBroker(conf.Kafka.Producer, conf.Kafka.Topic)
+	svc := service.NewSpanService(msgBroker)
+
+	// -
+
+	rest.NewSpanHandler(svc).Register(router)
 
 	return &http.Server{
 		Addr:    conf.Address,

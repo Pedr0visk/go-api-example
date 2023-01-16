@@ -6,10 +6,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
-type TraceMessageBroker struct {
+type SpanMessageBroker struct {
 	producer  *kafka.Producer
 	topicName string
 }
@@ -19,15 +21,19 @@ type event struct {
 	Value domain.Span
 }
 
-func (r *TraceMessageBroker) Created(ctx context.Context, trace domain.Span) error {
-	return nil
+func NewSpanMessageBroker(producer *kafka.Producer, topicName string) *SpanMessageBroker {
+	return &SpanMessageBroker{
+		producer:  producer,
+		topicName: topicName,
+	}
 }
 
-func NewTraceMessageBroker() *TraceMessageBroker {
-	return &TraceMessageBroker{}
+func (s *SpanMessageBroker) Created(ctx context.Context, span domain.Span) error {
+	return s.publish(ctx, "Span.Created", "spans.event.created", span)
 }
 
-func (t *TraceMessageBroker) publish(ctx context.Context, spanName, msgType string, trace domain.Span) error {
+func (s *SpanMessageBroker) publish(ctx context.Context, spanName, msgType string, span domain.Span) error {
+	fmt.Println(spanName)
 	// monitoring
 	//_, span := otel.Tracer(otelName).Start(ctx, spanName)
 	//defer span.End()
@@ -49,21 +55,21 @@ func (t *TraceMessageBroker) publish(ctx context.Context, spanName, msgType stri
 
 	evt := event{
 		Type:  msgType,
-		Value: trace,
+		Value: span,
 	}
 
 	if err := json.NewEncoder(&b).Encode(evt); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.Encode")
 	}
 
-	if err := t.producer.Produce(&kafka.Message{
+	if err := s.producer.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{
-			Topic:     &t.topicName,
+			Topic:     &s.topicName,
 			Partition: kafka.PartitionAny,
 		},
 		Value: b.Bytes(),
 	}, nil); err != nil {
-		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "trace.Producer")
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "span.Producer")
 	}
 
 	return nil

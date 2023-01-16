@@ -4,12 +4,13 @@ import (
 	"analytics/internal"
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"net/http"
 )
 
-const otelName = "analytics/internal/rest"
+// const otelName = "analytics/internal/rest"
 
 // ErrorResponse represents a response containing an error message.
 type ErrorResponse struct {
@@ -55,65 +56,6 @@ func renderErrorResponse(c *gin.Context, msg string, err error) {
 	c.JSON(status, resp)
 }
 
-//
-//func setConfig(configPath string) {
-//	internal.Setup(configPath)
-//	db.SetupDB()
-//	gin.SetMode(internal.GetConfig().Server.Mode)
-//}
-//
-//func Run(configPath string) {
-//	if configPath == "" {
-//		configPath = "data/config.yml"
-//	}
-//
-//	setConfig(configPath)
-//	conf := internal.GetConfig()
-//
-//	// -
-//
-//	prepo := db.NewPageRepository()
-//	pmsgRepo := kafka.NewTraceMessageBroker()
-//	psvc := service.NewPageService(prepo, pmsgRepo)
-//
-//	// -
-//
-//	app := gin.New()
-//
-//	// Middlewares
-//	app.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-//		return fmt.Sprintf("%s - - [%s] \"%s %s %s %d %s \" \" %s\" \" %s\"\n",
-//			param.ClientIP,
-//			param.TimeStamp.Format("02/Jan/2006:15:04:05 -0700"),
-//			param.Method,
-//			param.Path,
-//			param.Request.Proto,
-//			param.StatusCode,
-//			param.Latency,
-//			param.Request.UserAgent(),
-//			param.ErrorMessage,
-//		)
-//	}))
-//
-//	app.Use(gin.Recovery())
-//	app.Use(middlewares.CORS())
-//	// app.NoRoute(middlewares.NoRouteHandler()) TODO: create no router handler
-//
-//	// ================== Span Routes
-//	traceHandler := NewPageHandler(psvc)
-//	traceHandler.Register(app)
-//
-//	// ================== Docs Routes
-//	// app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-//
-//	//
-//	app.GET("/healthcheck", func(context *gin.Context) {
-//		context.JSON(http.StatusOK, "healthcheck")
-//	})
-//
-//	fmt.Println("Go API REST Running on port " + conf.Server.Port)
-//	err := app.Run(":" + conf.Server.Port)
-//	if err != nil {
-//		log.Fatalf("Error starting server: %v", err.Error())
-//	}
-//}
+func renderResponse(c *gin.Context, res interface{}, status int) {
+	c.JSON(status, res)
+}

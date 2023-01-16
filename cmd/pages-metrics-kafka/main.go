@@ -1,12 +1,13 @@
-package kafka
+package main
 
 import (
 	"analytics/cmd/internal"
 	internaldomain "analytics/internal"
 	"analytics/internal/framework/envvar"
 	"flag"
-	"go.uber.org/zap"
 	"log"
+
+	"go.uber.org/zap"
 )
 
 func main() {

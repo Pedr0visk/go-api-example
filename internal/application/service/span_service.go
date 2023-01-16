@@ -5,24 +5,33 @@ import (
 	"context"
 )
 
-type SpanMessageBroker interface {
+type SpanMessageBrokerRepository interface {
 	Created(ctx context.Context, span domain.Span) error
 }
 
 type SpanService struct {
-	msgBroker SpanMessageBroker
+	msgBroker SpanMessageBrokerRepository
 }
 
-type SpanCreate struct {
-	PageUrl   string `json:"page_url"`
-	Agent     string `json:"agent"`
-	Date      int    `json:"date"`
-	SessionID string `json:"session_id"`
+func NewSpanService(msgBroker SpanMessageBrokerRepository) *SpanService {
+	return &SpanService{
+		msgBroker: msgBroker,
+	}
 }
 
-func (s *SpanService) Create(ctx context.Context, inputParams SpanCreate) error {
+func (s *SpanService) Create(ctx context.Context, params SpanCreateParams) error {
 
-	if err := s.msgBroker.Created(ctx, domain.Span{}); err != nil {
+	if err := s.msgBroker.Created(ctx, domain.Span{
+		ID:        "1",
+		SessionID: params.SessionID,
+		PageID:    params.PageID,
+		Date:      int(params.Date),
+		Url: domain.Url{
+			Hostname: params.Hostname,
+			Pathname: params.Pathname,
+			Search:   params.Search,
+		},
+	}); err != nil {
 		return err
 	}
 
