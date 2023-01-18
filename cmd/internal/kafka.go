@@ -3,6 +3,7 @@ package internal
 import (
 	"analytics/internal"
 	"analytics/internal/framework/envvar"
+
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 

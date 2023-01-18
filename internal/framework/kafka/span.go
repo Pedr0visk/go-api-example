@@ -68,6 +68,7 @@ func (s *SpanMessageBroker) publish(ctx context.Context, spanName, msgType strin
 			Partition: kafka.PartitionAny,
 		},
 		Value: b.Bytes(),
+		Key:   []byte(evt.Value.PageID),
 	}, nil); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "span.Producer")
 	}

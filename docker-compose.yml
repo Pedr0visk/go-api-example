@@ -37,7 +37,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
   ksqldb-server:
-    image: confluentinc/ksqldb-server:0.28.3
+    image: confluentinc/ksqldb-server:latest
     hostname: ksqldb-server
     container_name: ksqldb-server
     depends_on:
@@ -51,10 +51,20 @@ services:
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
 
   ksqldb-cli:
-    image: confluentinc/ksqldb-cli:0.28.3
+    image: confluentinc/ksqldb-cli:latest
     container_name: ksqldb-cli
     depends_on:
       - broker
       - ksqldb-server
     entrypoint: /bin/sh
     tty: true
+  
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: kafdrop
+    depends_on:
+      - broker
+    ports:
+      - 19000:9000
+    environment:
+      KAFKA_BROKERCONNECT: broker:9092
