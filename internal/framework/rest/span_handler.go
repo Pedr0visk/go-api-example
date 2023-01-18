@@ -40,7 +40,7 @@ type CreateSpanRequest struct {
 	SessionID string `json:"session_id"`
 	PageID    string `json:"page_id"`
 	UserAgent string `json:"user_agent"`
-	Date      int    `json:"date"`
+	Date      int64  `json:"date"`
 	Hostname  string `json:"hostname"`
 	Pathname  string `json:"pathname"`
 	Search    string `json:"search"`

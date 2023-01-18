@@ -17,8 +17,8 @@ type SpanMessageBroker struct {
 }
 
 type event struct {
-	Type  string
-	Value domain.Span
+	Type  string      `json:"type"`
+	Value domain.Span `json:"value"`
 }
 
 func NewSpanMessageBroker(producer *kafka.Producer, topicName string) *SpanMessageBroker {

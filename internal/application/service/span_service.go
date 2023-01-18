@@ -3,6 +3,7 @@ package service
 import (
 	"analytics/internal/domain"
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -28,13 +29,9 @@ func (s *SpanService) Create(ctx context.Context, params SpanCreateParams) error
 		ID:        ID.String(),
 		SessionID: params.SessionID,
 		PageID:    params.PageID,
-		Date:      int(params.Date),
+		Date:      params.Date,
 		UserAgent: params.UserAgent,
-		Url: domain.Url{
-			Hostname: params.Hostname,
-			Pathname: params.Pathname,
-			Search:   params.Search,
-		},
+		Url:       fmt.Sprintf("%s%s%s", params.Hostname, params.Pathname, params.Search),
 	}); err != nil {
 		return err
 	}

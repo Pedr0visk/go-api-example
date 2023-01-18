@@ -10,8 +10,8 @@ type Span struct {
 	ID        string `json:"id"`
 	SessionID string `json:"session_id"`
 	PageID    string `json:"page_id"`
-	Date      int    `json:"date"`
-	Url       Url    `json:"url"`
+	Date      int64  `json:"date"`
+	Url       string `json:"url"`
 	UserAgent string `json:"user_agent"`
 }
 
