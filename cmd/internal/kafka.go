@@ -39,8 +39,8 @@ type KafkaConsumer struct {
 }
 
 // NewKafkaConsumer instantiates the Kafka consumer using configuration defined in environment variables.
-func NewKafkaConsumer(conf *envvar.Configuration, groupID string) (*KafkaConsumer, error) {
-	host, topic, err := newKafkaConfig(conf)
+func NewKafkaConsumer(conf *envvar.Configuration, groupID string, topic string) (*KafkaConsumer, error) {
+	host, _, err := newKafkaConfig(conf)
 	if err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "kafka.newKafkaConfig")
 	}

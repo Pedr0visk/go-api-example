@@ -13,8 +13,8 @@ import (
 
 	"analytics/cmd/internal"
 	internaldomain "analytics/internal"
-	"analytics/internal/domain"
 	"analytics/internal/framework/envvar"
+	"analytics/internal/framework/metric"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"go.uber.org/zap"
@@ -55,7 +55,7 @@ func run(env string) (<-chan error, error) {
 
 	//-
 
-	kafka, err := internal.NewKafkaConsumer(conf, "elasticsearch-indexer")
+	kafka, err := internal.NewKafkaConsumer(conf, "mongo-metric", "HOURLY_METRICS")
 	if err != nil {
 		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewKafkaConsumer")
 	}
@@ -120,6 +120,7 @@ func run(env string) (<-chan error, error) {
 type Server struct {
 	logger *zap.Logger
 	kafka  *internal.KafkaConsumer
+	page   *metric.PageMetric
 	doneC  chan struct{}
 	closeC chan struct{}
 }
@@ -140,7 +141,6 @@ func (s *Server) ListenAndServe() error {
 			case <-s.closeC:
 				run = false
 
-				break
 			default:
 				msg, ok := s.kafka.Consumer.Poll(150).(*kafka.Message)
 				if !ok {
@@ -148,8 +148,7 @@ func (s *Server) ListenAndServe() error {
 				}
 
 				var evt struct {
-					Type  string
-					Value domain.Span
+					PageViews uint `json:"PAGE_VIEWS"`
 				}
 
 				if err := json.NewDecoder(bytes.NewReader(msg.Value)).Decode(&evt); err != nil {
@@ -161,15 +160,12 @@ func (s *Server) ListenAndServe() error {
 
 				ok = false
 
-				switch evt.Type {
-				case "spans.event.created":
-					// if err := s.task.Index(context.Background(), evt.Value); err == nil {
-					// 	ok = true
-					// }
+				if err := s.page.Index(context.Background(), string(msg.Key), evt.PageViews); err == nil {
+					ok = true
 				}
 
 				if ok {
-					s.logger.Info("Consumed", zap.String("type", evt.Type))
+					s.logger.Info("Consumed", zap.String("key", string(msg.Key)))
 					commit(msg)
 				}
 			}
